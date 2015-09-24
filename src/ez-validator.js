@@ -1,4 +1,4 @@
-var validate = function(input, schema, callback) {
+var validate = function(values, schema, callback) {
 
 	var check = {
 		// Check if the input validates as an email address
@@ -40,6 +40,13 @@ var validate = function(input, schema, callback) {
 				return false;
 		},
 
+		same: function(field, input, match) {
+			if (input != values[match])
+				return { field: field, message: field + ' should be the same as ' + match };
+			else
+				return false;
+		},
+
 		// Check if the input is in the array
 		in: function(field, input, array) {
 			if (array.indexOf(input) == -1)
@@ -74,22 +81,22 @@ var validate = function(input, schema, callback) {
 			var value = rules[rule];
 
 			// Check if the field is required and empty
-			if (rule == 'required' && ! input[field]) {
+			if (rule == 'required' && ! values[field]) {
 				errors.push({
 					field: field,
 					message: field + ' is required'
 				});
 			} else {
-				if (check[rule] && input[field]) {
-					var error = check[rule](field, input[field], value);
+				if (check[rule] && values[field]) {
+					var error = check[rule](field, values[field], value);
 					if (error) errors.push(error);
 				}
 			}
 		}
 	}
 
-	// If any errors occured, return the array containing the errors, else return null
-	callback(errors.length > 0 ? errors : null);
+	// If any errors occured, return the array containing the errors, else return false
+	callback(errors.length > 0 ? errors : false);
 }
 
 if (typeof module !== 'undefined' && module.exports) {
